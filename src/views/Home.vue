@@ -45,7 +45,7 @@
                   fab
                   color="red darken-4 white--text"
                   v-on="on"
-                  @click="deleteSmoothie(smoothie.id)"
+                  @click="deleteSmoothie(smoothie.id,smoothie.searchindexer_id)"
                 >
                   <v-icon class="subheading">delete</v-icon>
                 </v-btn>
@@ -61,7 +61,7 @@
 
 <script>
 // @ is an alias to /src
-import { smoothies } from "@/firebase/init.js";
+import { searchindexer, smoothies } from "@/firebase/init.js";
 export default {
   name: "home",
   data() {
@@ -70,16 +70,26 @@ export default {
     };
   },
   methods: {
-    deleteSmoothie(smoothie_id) {
+    deleteSmoothie(smoothie_id,searchindexer_id) {
       //confirm
       if (confirm("Remove Smoothie ?")) {
+        //get searchindexer_id of smothie
+        
         smoothies
           .doc(smoothie_id)
           .delete()
           .then(() => {
-            console.log("Removed");
-            //refetchSmoothie
-            this.fetchSmoothies();  
+            //remove searchindexer for smoothie
+            searchindexer
+              .doc(searchindexer_id)
+              .delete()
+              .then(() => {
+                //refetchSmoothie
+                this.fetchSmoothies();
+              })
+              .catch(error => {
+                console.log(error);
+              });
           })
           .catch(error => {
             console.log(error);
@@ -87,7 +97,7 @@ export default {
       }
     },
     fetchSmoothies() {
-      this.smooties=[]
+      this.smooties = [];
       //fetch data from the firestore
       smoothies
         .get()
