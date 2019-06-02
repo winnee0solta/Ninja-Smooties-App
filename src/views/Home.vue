@@ -71,13 +71,32 @@ export default {
   },
   methods: {
     deleteSmoothie(smoothie_id) {
-      //log
-      console.log("remove smothie");
+      //confirm
+      if (confirm("Remove Smoothie ?")) {
+        smoothies
+          .doc(smoothie_id)
+          .delete()
+          .then(() => {
+            console.log("Removed");
+            //refetchSmoothie
+            this.fetchSmoothies();  
+          })
+          .catch(error => {
+            console.log(error);
+          });
+      }
+    },
+    fetchSmoothies() {
+      this.smooties=[]
+      //fetch data from the firestore
       smoothies
-        .doc(smoothie_id)
-        .delete()
-        .then(() => {
-          console.log("smothie removed");
+        .get()
+        .then(snapshot => {
+          snapshot.forEach(doc => {
+            let smoothie = doc.data();
+            smoothie.id = doc.id;
+            this.smooties.push(smoothie);
+          });
         })
         .catch(error => {
           console.log(error);
@@ -85,19 +104,7 @@ export default {
     }
   },
   created() {
-    //fetch data from the firestore
-    smoothies
-      .get()
-      .then(snapshot => {
-        snapshot.forEach(doc => {
-          let smoothie = doc.data();
-          smoothie.id = doc.id;
-          this.smooties.push(smoothie);
-        });
-      })
-      .catch(error => {
-        console.log(error);
-      });
+    this.fetchSmoothies();
   }
 };
 </script>
