@@ -1,5 +1,9 @@
 # ninja-smooties
-
+## firebase keys
+```
+duplicate firebase/fireconf-example.js and rename it to fireconf.js
+add appropriate keys from firebase console
+```
 ## Project setup
 ```
 npm install
