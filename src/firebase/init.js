@@ -13,4 +13,4 @@ export const db = firebaseApp.firestore()
 //export 
 export const smoothies = db.collection('smoothies')
 
-export const searchindexer = db.collection('searchindexer')
+// export const searchindexer = db.collection('searchindexer')

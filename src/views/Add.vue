@@ -58,7 +58,7 @@
 
 <script>
 // @ is an alias to /src
-import { searchindexer, smoothies } from "@/firebase/init.js";
+import { smoothies } from "@/firebase/init.js";
 import firebase from "firebase";
 //for slug
 import slugify from "slugify";
@@ -104,62 +104,30 @@ export default {
         lower: true
       });
 
-      //join title and ingredients together
-      var temp_joined_val = this.title.replace(/\s/g, "");
-      this.ingredients.forEach(ingredient => {
-        temp_joined_val = temp_joined_val + ingredient.replace(/\s/g, "");
+      var titlearray = []
+      this.title.split(" ").forEach((singletitle)=>{
+          titlearray.push(singletitle.toLowerCase())
       });
+      var searchvalue_array = titlearray.concat(this.ingredients);
+      searchvalue_array.push(this.title.toLowerCase());
 
-      var joined_val = slugify(temp_joined_val, {
-        replacement: "",
-        remove: /[$*_+~.()'"!\:@{}]/g,
-        lower: true
-      });
-
+      console.log(searchvalue_array);
+ 
       smoothies
         .add({
           title: this.title,
           ingredients: this.ingredients,
           slug: this.slug,
-          searchindexer_id: null,
+          searchvalue: searchvalue_array,
           created_at: firebase.firestore.FieldValue.serverTimestamp(),
           updated_at: firebase.firestore.FieldValue.serverTimestamp()
         })
         .then(docRef => {
           //added smoothie
-          //index smoothie for search
-          var smoothie_doc_id = docRef.id;
-          searchindexer
-            .add({
-              smoothie_doc_id: smoothie_doc_id,
-              searchvalue: joined_val.toString(),
-              created_at: firebase.firestore.FieldValue.serverTimestamp(),
-              updated_at: firebase.firestore.FieldValue.serverTimestamp()
-            })
-            .then(docRef => {
-              //upadate searchindex id
-              smoothies
-                .doc(smoothie_doc_id)
-                .update({ searchindexer_id: docRef.id })
-                .then(() => {
-                  //enable add button and hide loader
-                  this.disablebtn = false;
-                  this.showloader = false;
-                  this.$router.push({ name: "home" });
-                })
-                .catch(error => {
-                  //enable add button and hide loader
-                  this.disablebtn = false;
-                  this.showloader = false;
-                  console.log(error);
-                });
-            })
-            .catch(error => {
-              //enable add button and hide loader
-              this.disablebtn = false;
-              this.showloader = false;
-              console.log(error);
-            });
+          //enable add button and hide loader
+          this.disablebtn = false;
+          this.showloader = false;
+          this.$router.push({ name: "home" });
         })
         .catch(error => {
           //enable add button and hide loader
@@ -174,7 +142,7 @@ export default {
       }
       var temp_ingredient = this.ingredientfield;
       this.ingredientfield = "";
-      this.ingredients.push(temp_ingredient);
+      this.ingredients.push(temp_ingredient.toLowerCase());
     },
     removeIngredient(ingredient_index) {
       if (ingredient_index == null) {
